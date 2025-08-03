@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Case Details - Court Data Fetcher{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="case-details">
+            {% if case_data.case %}
+            <div class="case-header">
+                <h1 class="case-title">{{ case_data.case.title }}</h1>
+                <div class="case-meta">
+                    <span class="badge bg-primary me-2">{{ case_data.search.case_type }}</span>
+                    <span class="badge bg-secondary me-2">{{ case_data.search.case_number }}/{{ case_data.search.year }}</span>
+                    <span class="text-muted">Searched on {{ case_data.search.timestamp }}</span>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="case-section">
+                        <h3 class="section-title">Case Information</h3>
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th width="40%">Case Type</th>
+                                    <td>{{ case_data.search.case_type }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Case Number</th>
+                                    <td>{{ case_data.search.case_number }}/{{ case_data.search.year }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Petitioner</th>
+                                    <td>{{ case_data.case.petitioner or 'Not available' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Respondent</th>
+                                    <td>{{ case_data.case.respondent or 'Not available' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="case-section">
+                        <h3 class="section-title">Status & Dates</h3>
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th width="40%">Filing Date</th>
+                                    <td>{{ case_data.case.filing_date or 'Not available' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Next Hearing</th>
+                                    <td>{{ case_data.case.next_hearing_date or 'Not available' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Status</th>
+                                    <td>
+                                        {% if case_data.case.status %}
+                                            <span class="badge bg-{{ 'success' if 'disposed' not in case_data.case.status.lower() else 'secondary' }} p-2">
+                                                {{ case_data.case.status }}
+                                            </span>
+                                        {% else %}
+                                            Not available
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Bench</th>
+                                    <td>{{ case_data.case.bench or 'Not available' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="case-section mt-4">
+                <h3 class="section-title">
+                    <i class="fas fa-gavel me-2"></i> Orders & Judgments
+                    <span class="badge bg-info ms-2">{{ case_data.orders|length }}</span>
+                </h3>
+                
+                {% if case_data.orders %}
+                    {% for order in case_data.orders %}
+                    <div class="order-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="order-date">
+                                <i class="far fa-calendar-alt me-1"></i> {{ order.date }}
+                            </div>
+                            {% if order.pdf_url %}
+                            <a href="{{ url_for('download_pdf', pdf_url=order.pdf_url|replace('/', '__SLASH__')) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-file-pdf me-1"></i> Download PDF
+                            </a>
+                            {% endif %}
+                        </div>
+                        <div class="order-text mt-2">
+                            {{ order.text|safe }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> No orders or judgments found for this case.
+                </div>
+                {% endif %}
+            </div>
+            
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h2>No Case Data Found</h2>
+                <p class="text-muted">The requested case information could not be retrieved.</p>
+                <a href="{{ url_for('index') }}" class="btn btn-primary mt-3">
+                    <i class="fas fa-search me-2"></i> Try Another Search
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

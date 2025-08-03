@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Search History - Court Data Fetcher{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="search-form mb-4">
+            <h2 class="mb-4">Search History</h2>
+            
+            <div class="input-group mb-3">
+                <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="text" class="form-control" id="historySearch" 
+                       placeholder="Filter by case type, number, or title...">
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center">
+                <p class="mb-0">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Showing your recent {{ history|length }} searches
+                </p>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-plus me-1"></i> New Search
+                </a>
+            </div>
+        </div>
+        
+        {% if history %}
+        <ul class="history-list">
+            {% for item in history %}
+            <li class="history-item {{ 'history-item-success' if item.success else 'history-item-error' }}">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="history-timestamp">
+                            <i class="far fa-clock me-1"></i> {{ item.timestamp }}
+                        </div>
+                        <div class="history-case">
+                            {{ item.case_type }} {{ item.case_number }}/{{ item.year }}
+                            {% if item.case_title %}
+                            <span class="text-muted">- {{ item.case_title }}</span>
+                            {% endif %}
+                        </div>
+                        {% if not item.success and item.error_message %}
+                        <div class="history-error">
+                            <i class="fas fa-exclamation-circle me-1"></i> {{ item.error_message }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 text-md-end mt-2 mt-md-0">
+                        {% if item.success %}
+                        <a href="{{ url_for('case_details', search_id=item.id) }}" class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-eye me-1"></i> View Details
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('index') }}?case_type={{ item.case_type }}&case_number={{ item.case_number }}&year={{ item.year }}" 
+                           class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-redo me-1"></i> Retry Search
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-history fa-3x text-muted mb-3"></i>
+            <h3>No Search History</h3>
+            <p class="text-muted">You haven't performed any searches yet.</p>
+            <a href="{{ url_for('index') }}" class="btn btn-primary mt-2">
+                <i class="fas fa-search me-1"></i> Start Searching
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

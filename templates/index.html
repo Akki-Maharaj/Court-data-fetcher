@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Search Case - Court Data Fetcher{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="search-form">
+            <h2 class="mb-4 text-center">Delhi High Court Case Search</h2>
+            
+            {% if error %}
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i> {{ error }}
+            </div>
+            {% endif %}
+            
+            <form id="searchForm" method="post" action="{{ url_for('search_case') }}">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="caseType">Case Type</label>
+                            <select class="form-select" id="caseType" name="case_type" required>
+                                <option value="" selected disabled>Select Case Type</option>
+                                {% for case_type in case_types %}
+                                <option value="{{ case_type }}" {% if case_type == request.form.get('case_type') %}selected{% endif %}>
+                                    {{ case_type }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="caseNumber">Case Number</label>
+                            <input type="number" class="form-control" id="caseNumber" name="case_number" 
+                                   placeholder="Enter case number" required 
+                                   value="{{ request.form.get('case_number', '') }}">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="year">Year</label>
+                            <select class="form-select" id="year" name="year" required>
+                                <option value="" selected disabled>Select Year</option>
+                                {% for year_value in years %}
+                                <option value="{{ year_value }}" {% if year_value|string == request.form.get('year') %}selected{% endif %}>
+                                    {{ year_value }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if show_captcha %}
+                <div class="captcha-container">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <img id="captchaImage" src="/captcha" alt="CAPTCHA" class="img-fluid captcha-image">
+                            <span id="refreshCaptcha" class="refresh-captcha">
+                                <i class="fas fa-sync-alt"></i> Refresh CAPTCHA
+                            </span>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="captchaCode">Enter CAPTCHA Code</label>
+                                <input type="text" class="form-control" id="captchaCode" name="captcha_code" 
+                                       placeholder="Enter the code shown in the image" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-search me-2"></i> Search Case
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="text-center mt-4">
+            <p class="text-muted">
+                <i class="fas fa-info-circle me-1"></i>
+                Search for Delhi High Court cases by providing the case type, number, and year.
+                <br>
+                For recent cases, you may need to enter a CAPTCHA code for verification.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
